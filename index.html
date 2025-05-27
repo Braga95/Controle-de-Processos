@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Processo de Produção</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0056b3; /* Azul escuro */
+            --secondary-color: #007bff; /* Azul vibrante */
+            --accent-color: #28a745; /* Verde para sucesso */
+            --danger-color: #dc3545; /* Vermelho para erro */
+            --bg-color: #f8f9fa; /* Fundo claro */
+            --text-color: #343a40; /* Texto escuro */
+            --border-color: #dee2e6; /* Borda cinza */
+            --card-bg: #ffffff; /* Fundo dos cards */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box; /* Garante que padding não adicione à largura total */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: var(--secondary-color);
+            color: var(--white-color); /* Adicionado var(--white-color) */
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: var(--accent-color);
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: var(--danger-color);
+            border: 1px solid #f5c6cb;
+        }
+
+        .data-section {
+            margin-top: 40px;
+        }
+
+        .data-table-container {
+            overflow-x: auto; /* Para tabelas grandes em telas pequenas */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        th {
+            background-color: #e9ecef;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tbody tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Registro de Produção</h1>
+
+        <div class="form-section">
+            <form id="registroForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="maquina">Máquina:</label>
+                        <select id="maquina" required>
+                            <option value="">Selecione a Máquina</option>
+                            <option value="Maquina_A">Máquina A</option>
+                            <option value="Maquina_B">Máquina B</option>
+                            <option value="Maquina_C">Máquina C</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="turno">Turno:</label>
+                        <select id="turno" required>
+                            <option value="">Selecione o Turno</option>
+                            <option value="Manha">Manhã (06h-14h)</option>
+                            <option value="Tarde">Tarde (14h-22h)</option>
+                            <option value="Noite">Noite (22h-06h)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operador">Operador:</label>
+                        <input type="text" id="operador" placeholder="Nome do Operador" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ordemProducao">Ordem de Produção (OP):</label>
+                        <input type="text" id="ordemProducao" placeholder="Ex: OP-2024-001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="codigoProduto">Código do Produto:</label>
+                        <input type="text" id="codigoProduto" placeholder="Ex: P001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricaoProduto">Descrição do Produto:</label>
+                        <input type="text" id="descricaoProduto" placeholder="Ex: Rolo de Fio 10mm" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantidadeProduto">Quantidade Produzida:</label>
+                        <input type="number" id="quantidadeProduto" min="0" step="1" value="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="velocidade">Velocidade (un/min ou m/min):</label>
+                        <input type="number" id="velocidade" min="0" step="0.1" value="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="producaoMetros">Produção (metros):</label>
+                        <input type="number" id="producaoMetros" min="0" step="0.01" value="0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="producaoQuilos">Produção (quilos):</label>
+                        <input type="number" id="producaoQuilos" min="0" step="0.01" value="0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="trim">Trim (Refile/Apara - kg ou m):</label>
+                        <input type="number" id="trim" min="0" step="0.01" value="0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="justificativaTrim">Justificativa Trim:</label>
+                        <select id="justificativaTrim">
+                            <option value="">N/A</option>
+                            <option value="Setup">Setup</option>
+                            <option value="Troca_Ferramenta">Troca de Ferramenta</option>
+                            <option value="Qualidade">Ajuste de Qualidade</option>
+                            <option value="Normal">Trim Normal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sucata">Sucata (kg ou m):</label>
+                        <input type="number" id="sucata" min="0" step="0.01" value="0.00" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tempoProdutivo">Tempo Produtivo (minutos):</label>
+                        <input type="number" id="tempoProdutivo" min="0" step="0.1" value="0.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tempoImprodutivo">Tempo Improdutivo (minutos):</label>
+                        <input type="number" id="tempoImprodutivo" min="0" step="0.1" value="0.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="justificativaImprodutivo">Justificativa Tempo Improdutivo:</label>
+                        <select id="justificativaImprodutivo">
+                            <option value="">N/A</option>
+                            <option value="Manutencao">Manutenção</option>
+                            <option value="Falta_MateriaPrima">Falta de Matéria-Prima</option>
+                            <option value="Quebra_Maquina">Quebra de Máquina</option>
+                            <option value="Troca_OP">Troca de OP</option>
+                            <option value="Almoco_Pausa">Almoço/Pausa</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="observacoes">Observações:</label>
+                    <textarea id="observacoes" placeholder="Adicione observações relevantes..."></textarea>
+                </div>
+
+                <button type="submit">Registrar Produção</button>
+            </form>
+            <div id="message" class="message" style="display: none;"></div>
+        </div>
+
+        <div class="data-section">
+            <h2>Registros de Produção</h2>
+            <div class="data-table-container">
+                <table id="registrosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data/Hora</th>
+                            <th>Máquina</th>
+                            <th>Turno</th>
+                            <th>Operador</th>
+                            <th>OP</th>
+                            <th>Cód. Prod.</th>
+                            <th>Qtd. Prod.</th>
+                            <th>Prod. (m)</th>
+                            <th>Prod. (kg)</th>
+                            <th>Trim</th>
+                            <th>Sucata</th>
+                            <th>Tempo Prod.</th>
+                            <th>Tempo Improd.</th>
+                            <th>Just. Imp.</th>
+                            <th>Obs.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+                <div id="noDataMessage" class="no-data" style="display: none;">
+                    Nenhum registro de produção ainda.
+                </div>
+            </div>
+            <button id="clearDataButton" style="background-color: var(--danger-color); margin-top: 30px;">Limpar Todos os Registros</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('registroForm');
+            const messageDiv = document.getElementById('message');
+            const registrosTableBody = document.querySelector('#registrosTable tbody');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const clearDataButton = document.getElementById('clearDataButton');
+
+            let registros = JSON.parse(localStorage.getItem('registrosProducao')) || [];
+            let nextId = localStorage.getItem('nextRegistroId') ? parseInt(localStorage.getItem('nextRegistroId')) : 1;
+
+            const updateLocalStorage = () => {
+                localStorage.setItem('registrosProducao', JSON.stringify(registros));
+                localStorage.setItem('nextRegistroId', nextId);
+            };
+
+            const displayMessage = (msg, type) => {
+                messageDiv.textContent = msg;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 3000); // Esconde a mensagem após 3 segundos
+            };
+
+            const renderRegistros = () => {
+                registrosTableBody.innerHTML = ''; // Limpa a tabela
+                if (registros.length === 0) {
+                    noDataMessage.style.display = 'block';
+                    registrosTable.style.display = 'none';
+                } else {
+                    noDataMessage.style.display = 'none';
+                    registrosTable.style.display = 'table';
+                    registros.forEach(registro => {
+                        const row = registrosTableBody.insertRow();
+                        row.insertCell().textContent = registro.id;
+                        row.insertCell().textContent = new Date(registro.dataHoraRegistro).toLocaleString();
+                        row.insertCell().textContent = registro.maquina;
+                        row.insertCell().textContent = registro.turno;
+                        row.insertCell().textContent = registro.operador;
+                        row.insertCell().textContent = registro.ordemProducao;
+                        row.insertCell().textContent = registro.codigoProduto;
+                        row.insertCell().textContent = registro.quantidadeProduto;
+                        row.insertCell().textContent = registro.producaoMetros.toFixed(2);
+                        row.insertCell().textContent = registro.producaoQuilos.toFixed(2);
+                        row.insertCell().textContent = registro.trim.toFixed(2);
+                        row.insertCell().textContent = registro.sucata.toFixed(2);
+                        row.insertCell().textContent = registro.tempoProdutivo.toFixed(1);
+                        row.insertCell().textContent = registro.tempoImprodutivo.toFixed(1);
+                        row.insertCell().textContent = registro.justificativaImprodutivo || 'N/A';
+                        row.insertCell().textContent = registro.observacoes || '';
+                    });
+                }
+            };
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const newRegistro = {
+                    id: nextId++,
+                    dataHoraRegistro: new Date().toISOString(),
+                    maquina: document.getElementById('maquina').value,
+                    turno: document.getElementById('turno').value,
+                    operador: document.getElementById('operador').value,
+                    ordemProducao: document.getElementById('ordemProducao').value,
+                    codigoProduto: document.getElementById('codigoProduto').value,
+                    descricaoProduto: document.getElementById('descricaoProduto').value,
+                    quantidadeProduto: parseInt(document.getElementById('quantidadeProduto').value),
+                    velocidade: parseFloat(document.getElementById('velocidade').value),
+                    producaoMetros: parseFloat(document.getElementById('producaoMetros').value),
+                    producaoQuilos: parseFloat(document.getElementById('producaoQuilos').value),
+                    trim: parseFloat(document.getElementById('trim').value),
+                    justificativaTrim: document.getElementById('justificativaTrim').value,
+                    sucata: parseFloat(document.getElementById('sucata').value),
+                    tempoProdutivo: parseFloat(document.getElementById('tempoProdutivo').value),
+                    tempoImprodutivo: parseFloat(document.getElementById('tempoImprodutivo').value),
+                    justificativaImprodutivo: document.getElementById('justificativaImprodutivo').value,
+                    observacoes: document.getElementById('observacoes').value
+                };
+
+                registros.push(newRegistro);
+                updateLocalStorage();
+                renderRegistros();
+                form.reset(); // Limpa o formulário após o envio
+                displayMessage('Registro salvo com sucesso!', 'success');
+            });
+
+            clearDataButton.addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja limpar TODOS os registros? Esta ação é irreversível.')) {
+                    registros = [];
+                    nextId = 1; // Reseta o ID para 1
+                    updateLocalStorage();
+                    renderRegistros();
+                    displayMessage('Todos os registros foram limpos!', 'success');
+                }
+            });
+
+            // Renderiza os registros ao carregar a página pela primeira vez
+            renderRegistros();
+        });
+    </script>
+</body>
+</html>
