@@ -622,4 +622,62 @@
         const productsContainer = document.getElementById('productsContainer');
 
         // Event Listeners
-        adminBtn.addEventListener
+        <script>
+    // Mostrar modal de login ao clicar no botão "Administração"
+    adminBtn.addEventListener('click', () => {
+        loginModal.style.display = 'block';
+    });
+
+    // Fechar modal ao clicar no "X"
+    closeLogin.addEventListener('click', () => {
+        loginModal.style.display = 'none';
+    });
+
+    // Fechar modal se clicar fora do conteúdo
+    window.addEventListener('click', (e) => {
+        if (e.target === loginModal) {
+            loginModal.style.display = 'none';
+        }
+    });
+
+    // Login (simples, sem backend por enquanto)
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Validação simples
+        if (username === 'admin' && password === '1234') {
+            localStorage.setItem('isAdminLoggedIn', 'true');
+            loginModal.style.display = 'none';
+            initialScreen.style.display = 'none';
+            adminPanel.style.display = 'block';
+        } else {
+            alert('Usuário ou senha incorretos.');
+        }
+    });
+
+    // Voltar para tela inicial
+    backToHomeBtn.addEventListener('click', () => {
+        adminPanel.style.display = 'none';
+        initialScreen.style.display = 'block';
+    });
+
+    // Abas do painel admin
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+
+            btn.classList.add('active');
+            document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+        });
+    });
+
+    // Se já estiver logado, mostrar painel
+    if (isAdminLoggedIn) {
+        initialScreen.style.display = 'none';
+        adminPanel.style.display = 'block';
+    }
+</script>
+
