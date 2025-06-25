@@ -704,6 +704,50 @@ const imagePreview = document.getElementById('imagePreview');
 items = JSON.parse(localStorage.getItem('items')) || [];
 renderItems();
 
+
+        renderProdutosCliente();
+
+function renderProdutosCliente() {
+    productsContainer.innerHTML = '';
+    items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.classList.add('product-card');
+        card.innerHTML = `
+            <div class="product-img">
+                ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}">` : '🥤'}
+            </div>
+            <div class="product-info">
+                <div class="product-name">${item.name}</div>
+                <div class="product-price">R$ ${item.price.toFixed(2)}</div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="alterarQuantidade(${index}, -1)">-</button>
+                    <span class="quantity-value" id="quantidade-${index}">0</span>
+                    <button class="quantity-btn" onclick="alterarQuantidade(${index}, 1)">+</button>
+                </div>
+            </div>
+        `;
+        productsContainer.appendChild(card);
+    });
+}
+
+
+        let carrinho = [];
+
+function alterarQuantidade(index, delta) {
+    const quantidadeSpan = document.getElementById(`quantidade-${index}`);
+    let quantidadeAtual = parseInt(quantidadeSpan.textContent);
+    quantidadeAtual += delta;
+    if (quantidadeAtual < 0) quantidadeAtual = 0;
+    quantidadeSpan.textContent = quantidadeAtual;
+
+    carrinho[index] = quantidadeAtual;
+}
+
+
+        
+
+        
+
 itemForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
