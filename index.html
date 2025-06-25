@@ -604,4 +604,22 @@
     <script>
         // Variáveis globais
         let isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true' || false;
-        let items =
+        let items = [];
+        let totalAmount = 0;
+
+        // DOM Elements
+        const adminBtn = document.getElementById('adminBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeLogin = document.getElementById('closeLogin');
+        const loginForm = document.getElementById('loginForm');
+        const adminPanel = document.getElementById('adminPanel');
+        const initialScreen = document.getElementById('initialScreen');
+        const backToHomeBtn = document.getElementById('backToHomeBtn');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const itemsBody = document.getElementById('itemsBody');
+        const totalAmountDisplay = document.getElementById('totalAmount');
+        const productsContainer = document.getElementById('productsContainer');
+
+        // Event Listeners
+        adminBtn.add
