@@ -674,9 +674,93 @@
     });
 
     // Se já estiver logado, mostrar painel
-    if (isAdminLoggedIn) {
-        initialScreen.style.display = 'none';
-        adminPanel.style.display = 'block';
+   // Sempre iniciar na tela inicial, independente do login
+initialScreen.style.display = 'block';
+adminPanel.style.display = 'none';
+// Cadastro de Itens
+const itemForm = document.getElementById('itemForm');
+const itemNameInput = document.getElementById('itemName');
+const itemPriceInput = document.getElementById('itemPrice');
+const itemImageInput = document.getElementById('itemImage');
+const imagePreview = document.getElementById('imagePreview');
+
+
+        itemImageInput.addEventListener('change', () => {
+    const file = itemImageInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            imagePreview.src = reader.result;
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        imagePreview.style.display = 'none';
+    }
+});
+
+
+// Carregar itens salvos
+items = JSON.parse(localStorage.getItem('items')) || [];
+renderItems();
+
+itemForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = itemNameInput.value.trim();
+    const price = parseFloat(itemPriceInput.value);
+    const file = itemImageInput.files.length > 0 ? itemImageInput.files[0] : null;
+
+    if (!name || isNaN(price)) {
+        alert('Preencha todos os campos obrigatórios!');
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+        const imageUrl = file ? reader.result : '';
+        const newItem = { name, price, imageUrl };
+        items.push(newItem);
+        localStorage.setItem('items', JSON.stringify(items));
+        renderItems();
+        itemForm.reset();
+        imagePreview.style.display = 'none';
+    };
+
+    if (file) {
+        reader.readAsDataURL(file);
+    } else {
+        reader.onload(); // chama manualmente se não tem imagem
+    }
+});
+
+function renderItems() {
+    itemsBody.innerHTML = '';
+    items.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.name}</td>
+            <td>R$ ${item.price.toFixed(2)}</td>
+            <td>${item.imageUrl ? `<img src="${item.imageUrl}" class="item-table-img">` : 'Sem imagem'}</td>
+            <td>
+                <button class="delete-btn" onclick="deleteItem(${index})">Excluir</button>
+            </td>
+        `;
+        itemsBody.appendChild(row);
+    });
+}
+
+function deleteItem(index) {
+    if (confirm('Deseja excluir este item?')) {
+        items.splice(index, 1);
+        localStorage.setItem('items', JSON.stringify(items));
+        renderItems();
+    }
+}
+
+
+        
     }
 </script>
 
