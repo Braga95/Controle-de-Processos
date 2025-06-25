@@ -803,3 +803,83 @@ function deleteItem(index) {
     }
 }
 </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+
+
+
+    <script>
+    function finalizarPedido() {
+        const pedido = JSON.parse(localStorage.getItem('pedidoAtual'));
+        if (!pedido || !pedido.itens || pedido.itens.length === 0) {
+            alert("Nenhum item selecionado.");
+            return;
+        }
+
+        let resumo = '';
+        let total = 0;
+
+        pedido.itens.forEach(item => {
+            const valor = item.preco * item.quantidade;
+            resumo += `${item.nome} - ${item.quantidade} x R$ ${item.preco.toFixed(2)} = R$ ${valor.toFixed(2)}\n`;
+            total += valor;
+        });
+
+        resumo += `\nTotal: R$ ${total.toFixed(2)}`;
+        document.getElementById('pedidoResumo').style.display = 'block';
+        document.getElementById('resumoConteudo').textContent = resumo;
+
+        document.getElementById('pagamento').style.display = 'none';
+        document.getElementById('qrcodeTela').style.display = 'none';
+    }
+
+    function mostrarPagamento() {
+        document.getElementById('pedidoResumo').style.display = 'none';
+        document.getElementById('pagamento').style.display = 'block';
+    }
+
+    function simularPagamento(forma) {
+        const pedido = JSON.parse(localStorage.getItem('pedidoAtual')) || {};
+        const pedidoId = Date.now();
+        pedido.id = pedidoId;
+
+        const qrText = `PEDIDO ${pedidoId} - Pago com ${forma}`;
+        QRCode.toCanvas(document.getElementById('qrcodeCanvas'), qrText, { width: 256 }, function (error) {
+            if (error) console.error(error);
+        });
+
+        document.getElementById('pagamento').style.display = 'none';
+        document.getElementById('qrcodeTela').style.display = 'block';
+        document.getElementById('numeroPedido').textContent = `Pedido nº ${pedidoId}`;
+    }
+</script>
+
+
+
+    <section id="pedidoResumo" style="display: none;">
+    <div class="container">
+        <h2>Resumo do Pedido</h2>
+        <pre id="resumoConteudo" style="background: #f0f0f0; padding: 20px; border-radius: 10px;"></pre>
+        <button class="btn" onclick="mostrarPagamento()">Ir para Pagamento</button>
+    </div>
+</section>
+
+<section id="pagamento" style="display: none;">
+    <div class="container">
+        <h2>Escolha a forma de pagamento</h2>
+        <button class="btn" onclick="simularPagamento('Pix')">Pix</button>
+        <button class="btn" onclick="simularPagamento('Cartão Débito')">Cartão Débito</button>
+        <button class="btn" onclick="simularPagamento('Cartão Crédito')">Cartão Crédito</button>
+    </div>
+</section>
+
+<section id="qrcodeTela" style="display: none;">
+    <div class="container" style="text-align: center;">
+        <h2>Pagamento Confirmado</h2>
+        <canvas id="qrcodeCanvas"></canvas>
+        <p id="numeroPedido" style="margin-top: 20px; font-weight: bold;"></p>
+    </div>
+</section>
+
