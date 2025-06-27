@@ -714,7 +714,8 @@ renderItems();
 
 
         let carrinho = [];
-function finalizarPedido() {
+
+        function finalizarPedido() {
     const pedido = {
         itens: [],
         total: 0
@@ -741,9 +742,9 @@ function finalizarPedido() {
 
     let resumoTexto = '';
     pedido.itens.forEach(i => {
-        resumoTexto += `${i.nome} - ${i.quantidade} x R$ ${i.preco.toFixed(2)} = R$ ${i.subtotal.toFixed(2)}\n`;
+        resumoTexto += ${i.nome} - ${i.quantidade} x R$ ${i.preco.toFixed(2)} = R$ ${i.subtotal.toFixed(2)}\n;
     });
-    resumoTexto += `\nTotal: R$ ${pedido.total.toFixed(2)}`;
+    resumoTexto += \nTotal: R$ ${pedido.total.toFixed(2)};
 
     document.getElementById('resumoConteudo').textContent = resumoTexto;
     document.getElementById('pedidoResumo').style.display = 'block';
@@ -752,7 +753,6 @@ function finalizarPedido() {
 
     localStorage.setItem('pedidoAtual', JSON.stringify(pedido));
 }
-
 
 
 
@@ -765,7 +765,7 @@ function renderProdutosCliente() {
         card.classList.add('product-card');
         card.innerHTML = `
             <div class="product-img">
-                ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}">` : '🥤'}
+                ${item.imageUrl ? <img src="${item.imageUrl}" alt="${item.name}"> : '🥤'}
             </div>
             <div class="product-info">
                 <div class="product-name">${item.name}</div>
@@ -785,7 +785,7 @@ function renderProdutosCliente() {
       
 
 function alterarQuantidade(index, delta) {
-    const quantidadeSpan = document.getElementById(`quantidade-${index}`);
+    const quantidadeSpan = document.getElementById(quantidade-${index});
     let quantidadeAtual = parseInt(quantidadeSpan.textContent);
     quantidadeAtual += delta;
     if (quantidadeAtual < 0) quantidadeAtual = 0;
