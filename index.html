@@ -533,7 +533,8 @@
             <h2>Resumo do Pedido</h2>
             <pre id="resumoConteudo" style="background: #f0f0f0; padding: 20px; border-radius: 10px;"></pre>
             <button class="btn" onclick="mostrarPagamento()">Ir para Pagamento</button>
-            <button class="btn" onclick="voltarParaCardapio()">Voltar</button> </div>
+            <button class="btn" onclick="voltarParaCardapio()">Voltar</button>
+        </div>
     </section>
 
     <section id="pagamento" style="display: none;">
@@ -542,7 +543,8 @@
             <button class="btn" onclick="simularPagamento('Pix')">Pix</button>
             <button class="btn" onclick="simularPagamento('Cartão Débito')">Cartão Débito</button>
             <button class="btn" onclick="simularPagamento('Cartão Crédito')">Cartão Crédito</button>
-            <button class="btn" onclick="voltarParaResumo()">Voltar</button> </div>
+            <button class="btn" onclick="voltarParaResumo()">Voltar</button>
+        </div>
     </section>
 
     <section id="qrcodeTela" style="display: none;">
@@ -550,7 +552,8 @@
             <h2>Pagamento Confirmado</h2>
             <canvas id="qrcodeCanvas"></canvas>
             <p id="numeroPedido" style="margin-top: 20px; font-weight: bold;"></p>
-            <button class="btn" onclick="voltarParaCardapio()">Novo Pedido</button> </div>
+            <button class="btn" onclick="voltarParaCardapio()">Novo Pedido</button>
+        </div>
     </section>
 
     <div class="container admin-panel" id="adminPanel">
@@ -580,7 +583,8 @@
                 <thead>
                     <tr>
                         <th>Nº Pedido</th>
-                        <th>Cliente</th>
+                        <th>Itens</th>
+                        <th>Total</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -636,8 +640,11 @@
     <script>
         // Variáveis globais
         let isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true' || false;
-        let items = []; // Lista de produtos cadastrados
+        let items = []; // Lista de produtos cadastrados (admin)
         let carrinho = []; // Armazena a quantidade de cada item no carrinho do cliente
+        let pedidos = []; // Lista de pedidos (admin)
+        let ultimoNumeroPedido = parseInt(localStorage.getItem('ultimoNumeroPedido')) || 0; // Para número sequencial
+
         let totalAmount = 0; // Isso parece ser para o painel de administração de sacar
 
         // DOM Elements
@@ -656,7 +663,7 @@
         const pedidoResumoSection = document.getElementById('pedidoResumo');
         const pagamentoSection = document.getElementById('pagamento');
         const qrcodeTelaSection = document.getElementById('qrcodeTela');
-
+        const pedidosBody = document.getElementById('pedidosBody'); // Novo elemento para a tabela de pedidos
 
         // --- Funções de Interface e Login ---
 
@@ -689,6 +696,7 @@
                 loginModal.style.display = 'none';
                 initialScreen.style.display = 'none'; // Esconde a tela inicial
                 adminPanel.style.display = 'block'; // Mostra o painel de administração
+                renderPedidosAdmin(); // Renderiza os pedidos ao entrar no painel admin
             } else {
                 alert('Usuário ou senha incorretos.');
             }
@@ -712,6 +720,11 @@
 
                 btn.classList.add('active');
                 document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+
+                // Se a aba de pedidos for ativada, renderize os pedidos
+                if (btn.getAttribute('data-tab') === 'pedidos') {
+                    renderPedidosAdmin();
+                }
             });
         });
 
@@ -801,8 +814,10 @@
         function deleteItem(index) {
             if (confirm('Deseja excluir este item?')) {
                 items.splice(index, 1);
-                // Remove o item correspondente do carrinho
-                carrinho.splice(index, 1);
+                // Remove o item correspondente do carrinho (se existir)
+                if (carrinho[index] !== undefined) {
+                    carrinho.splice(index, 1);
+                }
                 localStorage.setItem('items', JSON.stringify(items));
                 renderItems();
                 renderProdutosCliente(); // Atualiza a lista de produtos no cardápio
@@ -814,6 +829,10 @@
         function renderProdutosCliente() {
             productsContainer.innerHTML = '';
             items.forEach((item, index) => {
+                // Garante que o carrinho tenha um valor inicial para o item
+                if (carrinho[index] === undefined) {
+                    carrinho[index] = 0;
+                }
                 const card = document.createElement('div');
                 card.classList.add('product-card');
                 card.innerHTML = `
@@ -825,7 +844,7 @@
                         <div class="product-price">R$ ${item.price.toFixed(2)}</div>
                         <div class="quantity-controls">
                             <button class="quantity-btn" onclick="alterarQuantidade(${index}, -1)">-</button>
-                            <span class="quantity-value" id="quantidade-${index}">${carrinho[index] || 0}</span>
+                            <span class="quantity-value" id="quantidade-${index}">${carrinho[index]}</span>
                             <button class="quantity-btn" onclick="alterarQuantidade(${index}, 1)">+</button>
                         </div>
                     </div>
@@ -846,35 +865,35 @@
         }
 
         function finalizarPedido() {
-            const pedido = {
+            const pedidoAtual = {
                 itens: [],
                 total: 0
             };
 
             items.forEach((item, index) => {
-                const quantidade = carrinho[index] || 0; // Pega a quantidade do carrinho
+                const quantidade = carrinho[index] || 0;
                 if (quantidade > 0) {
                     const subtotal = item.price * quantidade;
-                    pedido.itens.push({
+                    pedidoAtual.itens.push({
                         nome: item.name,
                         preco: item.price,
                         quantidade: quantidade,
                         subtotal: subtotal
                     });
-                    pedido.total += subtotal;
+                    pedidoAtual.total += subtotal;
                 }
             });
 
-            if (pedido.itens.length === 0) {
+            if (pedidoAtual.itens.length === 0) {
                 alert("Nenhum item foi selecionado.");
                 return;
             }
 
             let resumoTexto = '';
-            pedido.itens.forEach(i => {
+            pedidoAtual.itens.forEach(i => {
                 resumoTexto += `${i.nome} - ${i.quantidade} x R$ ${i.preco.toFixed(2)} = R$ ${i.subtotal.toFixed(2)}\n`;
             });
-            resumoTexto += `\nTotal: R$ ${pedido.total.toFixed(2)}`;
+            resumoTexto += `\nTotal: R$ ${pedidoAtual.total.toFixed(2)}`;
 
             document.getElementById('resumoConteudo').textContent = resumoTexto;
             initialScreen.style.display = 'none'; // Esconde a tela inicial
@@ -882,7 +901,7 @@
             pagamentoSection.style.display = 'none';
             qrcodeTelaSection.style.display = 'none';
 
-            localStorage.setItem('pedidoAtual', JSON.stringify(pedido));
+            localStorage.setItem('pedidoAtual', JSON.stringify(pedidoAtual));
         }
 
         function mostrarPagamento() {
@@ -893,24 +912,34 @@
 
         function simularPagamento(forma) {
             const pedido = JSON.parse(localStorage.getItem('pedidoAtual')) || {};
-            const pedidoId = Date.now(); // Gera um ID único para o pedido
-            pedido.id = pedidoId;
+            
+            // Incrementa o número sequencial do pedido
+            ultimoNumeroPedido++;
+            localStorage.setItem('ultimoNumeroPedido', ultimoNumeroPedido);
+            pedido.numero = ultimoNumeroPedido; // Atribui o número sequencial
+            pedido.status = 'Pendente'; // Status inicial
+            pedido.formaPagamento = forma; // Salva a forma de pagamento
 
-            const qrText = `PEDIDO ${pedidoId} - Pago com ${forma}. Valor: R$ ${pedido.total.toFixed(2)}`;
+            // Adiciona o pedido à lista de pedidos e salva no localStorage
+            pedidos.push(pedido);
+            localStorage.setItem('pedidos', JSON.stringify(pedidos));
+
+            const qrText = `PEDIDO ${pedido.numero} - Pago com ${forma}. Valor: R$ ${pedido.total.toFixed(2)}`;
             QRCode.toCanvas(document.getElementById('qrcodeCanvas'), qrText, { width: 256 }, function (error) {
                 if (error) console.error(error);
             });
 
             pagamentoSection.style.display = 'none';
             qrcodeTelaSection.style.display = 'block';
-            document.getElementById('numeroPedido').textContent = `Pedido nº ${pedidoId}`;
+            document.getElementById('numeroPedido').textContent = `Pedido nº ${pedido.numero}`;
 
             // Resetar o carrinho após finalizar o pedido e mostrar o QR Code
             carrinho = new Array(items.length).fill(0);
             renderProdutosCliente(); // Atualiza as quantidades na tela inicial para zero
+            renderPedidosAdmin(); // Atualiza a lista de pedidos no admin
         }
 
-        // NOVO: Função para voltar para a tela do cardápio (tela inicial)
+        // Função para voltar para a tela do cardápio (tela inicial)
         function voltarParaCardapio() {
             pedidoResumoSection.style.display = 'none';
             pagamentoSection.style.display = 'none';
@@ -918,13 +947,56 @@
             initialScreen.style.display = 'block';
         }
 
-        // NOVO: Função para voltar para o resumo (da tela de pagamento)
+        // Função para voltar para o resumo (da tela de pagamento)
         function voltarParaResumo() {
             pagamentoSection.style.display = 'none';
             pedidoResumoSection.style.display = 'block';
         }
+
+        // --- Funções da Aba de Pedidos (Admin) ---
+
+        // Carregar pedidos salvos do localStorage
+        pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+        renderPedidosAdmin(); // Renderiza os pedidos ao carregar a página (se estiver no admin)
+
+        function renderPedidosAdmin() {
+            pedidosBody.innerHTML = '';
+            pedidos.forEach(pedido => {
+                const row = document.createElement('tr');
+                const itensList = pedido.itens.map(item => `${item.nome} (${item.quantidade})`).join(', ');
+
+                row.innerHTML = `
+                    <td>${pedido.numero}</td>
+                    <td>${itensList}</td>
+                    <td>R$ ${pedido.total.toFixed(2)}</td>
+                    <td><span class="status status-${pedido.status.toLowerCase()}">${pedido.status}</span></td>
+                    <td>
+                        <button class="action-btn entregue-btn" onclick="marcarComoEntregue(${pedido.numero})">Entregue</button>
+                        <button class="action-btn delete-btn" onclick="excluirPedido(${pedido.numero})">Excluir</button>
+                    </td>
+                `;
+                pedidosBody.appendChild(row);
+            });
+        }
+
+        function marcarComoEntregue(numeroPedido) {
+            const index = pedidos.findIndex(p => p.numero === numeroPedido);
+            if (index !== -1) {
+                pedidos[index].status = 'Entregue';
+                localStorage.setItem('pedidos', JSON.stringify(pedidos));
+                renderPedidosAdmin(); // Atualiza a tabela
+            }
+        }
+
+        function excluirPedido(numeroPedido) {
+            if (confirm(`Deseja realmente excluir o pedido Nº ${numeroPedido}?`)) {
+                pedidos = pedidos.filter(p => p.numero !== numeroPedido);
+                localStorage.setItem('pedidos', JSON.stringify(pedidos));
+                renderPedidosAdmin(); // Atualiza a tabela
+            }
+        }
         
-        // Funções de Banco e Saque (Mantenho como estavam, pois não foram o foco da sua pergunta)
+        // Funções de Banco e Saque
         function saveBankInfo() {
             alert('Informações bancárias salvas! (Implementação futura de persistência)');
         }
