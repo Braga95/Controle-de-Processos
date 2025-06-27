@@ -714,8 +714,7 @@ renderItems();
 
 
         let carrinho = [];
-
-        function finalizarPedido() {
+function finalizarPedido() {
     const pedido = {
         itens: [],
         total: 0
@@ -742,9 +741,9 @@ renderItems();
 
     let resumoTexto = '';
     pedido.itens.forEach(i => {
-        resumoTexto += ${i.nome} - ${i.quantidade} x R$ ${i.preco.toFixed(2)} = R$ ${i.subtotal.toFixed(2)}\n;
+        resumoTexto += `${i.nome} - ${i.quantidade} x R$ ${i.preco.toFixed(2)} = R$ ${i.subtotal.toFixed(2)}\n`;
     });
-    resumoTexto += \nTotal: R$ ${pedido.total.toFixed(2)};
+    resumoTexto += `\nTotal: R$ ${pedido.total.toFixed(2)}`;
 
     document.getElementById('resumoConteudo').textContent = resumoTexto;
     document.getElementById('pedidoResumo').style.display = 'block';
@@ -753,6 +752,7 @@ renderItems();
 
     localStorage.setItem('pedidoAtual', JSON.stringify(pedido));
 }
+
 
 
 
