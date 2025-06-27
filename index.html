@@ -713,6 +713,8 @@ items = JSON.parse(localStorage.getItem('items')) || [];
 renderItems();
 
 
+        let carrinho = [];
+
         function finalizarPedido() {
     const pedido = {
         itens: [],
@@ -780,7 +782,7 @@ function renderProdutosCliente() {
 }
 
 
-        let carrinho = [];
+      
 
 function alterarQuantidade(index, delta) {
     const quantidadeSpan = document.getElementById(`quantidade-${index}`);
