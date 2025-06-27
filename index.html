@@ -533,7 +533,7 @@
             <h2>Resumo do Pedido</h2>
             <pre id="resumoConteudo" style="background: #f0f0f0; padding: 20px; border-radius: 10px;"></pre>
             <button class="btn" onclick="mostrarPagamento()">Ir para Pagamento</button>
-        </div>
+            <button class="btn" onclick="voltarParaCardapio()">Voltar</button> </div>
     </section>
 
     <section id="pagamento" style="display: none;">
@@ -542,7 +542,7 @@
             <button class="btn" onclick="simularPagamento('Pix')">Pix</button>
             <button class="btn" onclick="simularPagamento('Cartão Débito')">Cartão Débito</button>
             <button class="btn" onclick="simularPagamento('Cartão Crédito')">Cartão Crédito</button>
-        </div>
+            <button class="btn" onclick="voltarParaResumo()">Voltar</button> </div>
     </section>
 
     <section id="qrcodeTela" style="display: none;">
@@ -550,7 +550,7 @@
             <h2>Pagamento Confirmado</h2>
             <canvas id="qrcodeCanvas"></canvas>
             <p id="numeroPedido" style="margin-top: 20px; font-weight: bold;"></p>
-        </div>
+            <button class="btn" onclick="voltarParaCardapio()">Novo Pedido</button> </div>
     </section>
 
     <div class="container admin-panel" id="adminPanel">
@@ -694,7 +694,7 @@
             }
         });
 
-        // Voltar para tela inicial
+        // Voltar para tela inicial (do painel admin)
         backToHomeBtn.addEventListener('click', () => {
             adminPanel.style.display = 'none';
             initialScreen.style.display = 'block';
@@ -908,6 +908,20 @@
             // Resetar o carrinho após finalizar o pedido e mostrar o QR Code
             carrinho = new Array(items.length).fill(0);
             renderProdutosCliente(); // Atualiza as quantidades na tela inicial para zero
+        }
+
+        // NOVO: Função para voltar para a tela do cardápio (tela inicial)
+        function voltarParaCardapio() {
+            pedidoResumoSection.style.display = 'none';
+            pagamentoSection.style.display = 'none';
+            qrcodeTelaSection.style.display = 'none';
+            initialScreen.style.display = 'block';
+        }
+
+        // NOVO: Função para voltar para o resumo (da tela de pagamento)
+        function voltarParaResumo() {
+            pagamentoSection.style.display = 'none';
+            pedidoResumoSection.style.display = 'block';
         }
         
         // Funções de Banco e Saque (Mantenho como estavam, pois não foram o foco da sua pergunta)
